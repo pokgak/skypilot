@@ -347,9 +347,15 @@ def get_cached_enabled_clouds_or_refresh(
     skypilot_config_allowed_clouds = skypilot_config.get_nested(
         ('allowed_clouds',), [])
     if sorted(cached_allowed_clouds) != sorted(skypilot_config_allowed_clouds):
-        logger.debug(f'Allowed clouds changed from {cached_allowed_clouds} '
-                     f'to {skypilot_config_allowed_clouds}')
-        allowed_clouds_changed = True
+        for cloud in skypilot_config_allowed_clouds:
+            # refresh the allowed clouds if any cloud allowed in config
+            # is not in the cached allowed clouds.
+            if cloud not in cached_allowed_clouds:
+                logger.debug(
+                    f'Allowed clouds changed from {cached_allowed_clouds} '
+                    f'to {skypilot_config_allowed_clouds}')
+                allowed_clouds_changed = True
+                break
 
     cached_enabled_clouds = global_user_state.get_cached_enabled_clouds(
         capability, skypilot_config.get_active_workspace())

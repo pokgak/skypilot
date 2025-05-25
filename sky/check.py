@@ -342,8 +342,10 @@ def get_cached_enabled_clouds_or_refresh(
         exceptions.NoCloudAccessError: if no public cloud is enabled and
             raise_if_no_cloud_access is set to True.
     """
+    active_workspace = skypilot_config.get_active_workspace()
     allowed_clouds_changed = False
-    cached_allowed_clouds = global_user_state.get_allowed_clouds()
+    cached_allowed_clouds = global_user_state.get_allowed_clouds(
+        active_workspace)
     skypilot_config_allowed_clouds = skypilot_config.get_nested(
         ('allowed_clouds',), [])
     if sorted(cached_allowed_clouds) != sorted(skypilot_config_allowed_clouds):
@@ -358,20 +360,20 @@ def get_cached_enabled_clouds_or_refresh(
                 break
 
     cached_enabled_clouds = global_user_state.get_cached_enabled_clouds(
-        capability, skypilot_config.get_active_workspace())
+        capability, active_workspace)
     if not cached_enabled_clouds or allowed_clouds_changed:
         try:
             check_capability(capability, quiet=True)
             if allowed_clouds_changed:
                 global_user_state.set_allowed_clouds(
-                    skypilot_config_allowed_clouds)
+                    skypilot_config_allowed_clouds, active_workspace)
         except SystemExit:
             # If no cloud is enabled, check() will raise SystemExit.
             # Here we catch it and raise the exception later only if
             # raise_if_no_cloud_access is set to True.
             pass
         cached_enabled_clouds = global_user_state.get_cached_enabled_clouds(
-            capability, skypilot_config.get_active_workspace())
+            capability, active_workspace)
     if raise_if_no_cloud_access and not cached_enabled_clouds:
         with ux_utils.print_exception_no_traceback():
             raise exceptions.NoCloudAccessError(

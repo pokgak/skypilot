@@ -207,6 +207,9 @@ spec:
           mountPath: /root/.nebius_credentials
         {{- end }}
       initContainers:
+      {{- if .Values.extraInitContainers }}
+      {{- toYaml .Values.extraInitContainers | nindent 6 }}
+      {{- end }}
       {{- if .Values.awsCredentials.enabled }}
       - name: create-aws-credentials
         {{- with .Values.securityContext }}

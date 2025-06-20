@@ -211,7 +211,7 @@ def get_cluster_info(
     for instance_id in running_instances.keys():
         retry_count = 0
         max_retries = 6
-        while running_instances[instance_id].get('sshConnection' is None and retry_count < max_retries:
+        while running_instances[instance_id].get('sshConnection') is None and retry_count < max_retries:
             print(f"SSH connection to {running_instances[instance_id].get('name')} is not ready, waiting 10 seconds... (attempt {retry_count + 1}/{max_retries})")
             time.sleep(10)
             retry_count += 1
@@ -233,11 +233,11 @@ def get_cluster_info(
                 instance_id=instance_id,
                 internal_ip="NOT_SUPPORTED",
                 external_ip=running_instances[instance_id]['ip'],
-                ssh_port=ssh_port,
+                ssh_port=int(ssh_port),
                 tags={"provider": running_instances[instance_id]['providerType']},
             )
         ]
-        if instance_info['name'].endswith('-head'):
+        if running_instances[instance_id]['name'].endswith('-head'):
             head_instance_id = instance_id
             head_instance_ssh_user = running_instances[instance_id]['sshConnection'].split(
                 '@', 1)[0].strip()

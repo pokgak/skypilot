@@ -42,6 +42,11 @@ def _filter_instances(cluster_name_on_cloud: str,
     return filtered_instances
 
 
+def _get_instance_info(instance_id: str) -> Dict[str, Any]:
+    client = utils.PrimeintellectAPIClient()
+    return client.get_instance_details(instance_id)
+
+
 def _get_head_instance_id(instances: Dict[str, Any]) -> Optional[str]:
     head_instance_id = None
     for inst_id, inst in instances.items():
@@ -203,37 +208,38 @@ def get_cluster_info(
     instances: Dict[str, List[common.InstanceInfo]] = {}
     head_instance_id = None
     head_instance_ssh_user = None
-    for instance_id, instance_info in running_instances.items():
+    for instance_id in running_instances.keys():
         retry_count = 0
         max_retries = 6
-        while instance_info.get('sshConnection') is None and retry_count < max_retries:
-            print(f"SSH connection to {instance_info.get('name')} is not ready, waiting 10 seconds... (attempt {retry_count + 1}/{max_retries})")
+        while running_instances[instance_id].get('sshConnection' is None and retry_count < max_retries:
+            print(f"SSH connection to {running_instances[instance_id].get('name')} is not ready, waiting 10 seconds... (attempt {retry_count + 1}/{max_retries})")
             time.sleep(10)
             retry_count += 1
+            running_instances[instance_id] = _get_instance_info(instance_id)
 
-        if instance_info.get('sshConnection') is not None:
+        if running_instances[instance_id].get('sshConnection') is not None:
             print("SSH connection is ready!")
         else:
             raise Exception(f"Failed to establish SSH connection after {max_retries} attempts")
 
-        assert instance_info.get('sshConnection'), "sshConnection cannot be null anymore"
+        assert running_instances[instance_id].get('sshConnection'), "sshConnection cannot be null anymore"
 
-        if ' -p ' in instance_info['sshConnection']:
-            ssh_port = instance_info['sshConnection'].split(' -p ')[1].strip()
+        if ' -p ' in running_instances[instance_id]['sshConnection']:
+            ssh_port = running_instances[instance_id]['sshConnection'].split(' -p ')[1].strip()
         else:
             ssh_port = '22'
         instances[instance_id] = [
             common.InstanceInfo(
                 instance_id=instance_id,
                 internal_ip="NOT_SUPPORTED",
-                external_ip=instance_info['ip'],
+                external_ip=running_instances[instance_id]['ip'],
                 ssh_port=ssh_port,
-                tags={"provider": instance_info['providerType']},
+                tags={"provider": running_instances[instance_id]['providerType']},
             )
         ]
         if instance_info['name'].endswith('-head'):
             head_instance_id = instance_id
-            head_instance_ssh_user = instance_info['sshConnection'].split(
+            head_instance_ssh_user = running_instances[instance_id]['sshConnection'].split(
                 '@', 1)[0].strip()
 
     return common.ClusterInfo(

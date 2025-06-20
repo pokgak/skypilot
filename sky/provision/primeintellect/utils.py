@@ -98,6 +98,11 @@ class PrimeintellectAPIClient:
                                              data=search_kwargs)
         return response['data']
 
+    def get_instance_details(self, instance_id: str) -> Dict[str, Any]:
+        return _try_request_with_backoff('get',
+            f'{self.base_url}/api/v1/pods/{instance_id}',
+            headers=self.headers)
+
     def launch(self, name: str, instance_type: str, region: str,
                disk_size: int) -> Dict[str, Any]:
         cloudId = get_upstream_cloud_id(instance_type)

@@ -594,12 +594,12 @@ def setup_primeintellect_authentication(
     - Generates a new SSH key pair if one does not exist.
     - Adds the public SSH key to the user's Primeintellect account.
     """
-    config_file = '~/.prime/config.json'
-    if not os.path.isfile(os.path.expanduser(config_file)):
-        raise Exception(f"{config_file} does not exist")
+    prime_config = '~/.prime/config.json'
+    if not os.path.isfile(os.path.expanduser(prime_config)):
+        raise Exception(f"{prime_config} does not exist")
 
     public_key_path = None
-    with open(os.path.expanduser(config_file),encoding='UTF-8') as f:
+    with open(os.path.expanduser(prime_config),encoding='UTF-8') as f:
         data = json.load(f)
         public_key_path = data.get('ssh_key_path') + ".pub"
 
@@ -611,4 +611,11 @@ def setup_primeintellect_authentication(
     config['auth']['ssh_user'] = 'ubuntu'
     config['auth']['ssh_public_key'] = public_key
 
-    return configure_ssh_info(config)
+    config_str = common_utils.dump_yaml_str(config)
+    config_str = config_str.replace('skypilot:ssh_user',
+                                    config['auth']['ssh_user'])
+    config_str = config_str.replace('skypilot:ssh_public_key_content',
+                                    config['auth']['ssh_public_key'])
+    config = yaml.safe_load(config_str)
+
+    return config

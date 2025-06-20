@@ -21,8 +21,7 @@ _df = None
 _lookup_dict = None
 
 CREDENTIALS_PATH = '~/.prime/config.json'
-# API_ENDPOINT = "https://api.primeintellect.ai"
-API_ENDPOINT = "http://localhost:82"
+API_ENDPOINT = "https://api.primeintellect.ai"
 INITIAL_BACKOFF_SECONDS = 10
 MAX_BACKOFF_FACTOR = 10
 MAX_ATTEMPTS = 6

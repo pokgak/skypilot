@@ -204,6 +204,20 @@ def get_cluster_info(
     head_instance_id = None
     head_instance_ssh_user = None
     for instance_id, instance_info in running_instances.items():
+        retry_count = 0
+        max_retries = 6
+        while instance_info.get('sshConnection') is None and retry_count < max_retries:
+            print(f"SSH connection to {instance_info.get('name')} is not ready, waiting 10 seconds... (attempt {retry_count + 1}/{max_retries})")
+            time.sleep(10)
+            retry_count += 1
+
+        if instance_info.get('sshConnection') is not None:
+            print("SSH connection is ready!")
+        else:
+            raise Exception(f"Failed to establish SSH connection after {max_retries} attempts")
+
+        assert instance_info.get('sshConnection'), "sshConnection cannot be null anymore"
+
         if ' -p ' in instance_info['sshConnection']:
             ssh_port = instance_info['sshConnection'].split(' -p ')[1].strip()
         else:

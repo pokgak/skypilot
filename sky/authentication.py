@@ -609,6 +609,6 @@ def setup_primeintellect_authentication(
         public_key = f.read().strip()
     client.get_or_add_ssh_key(public_key)
     config['auth']['ssh_user'] = 'ubuntu'
-    config['auth']['ssh_public_key'] = public_key_path
+    config['auth']['ssh_public_key'] = public_key
 
     return configure_ssh_info(config)

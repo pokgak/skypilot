@@ -21,7 +21,6 @@ _df = None
 _lookup_dict = None
 
 CREDENTIALS_PATH = '~/.prime/config.json'
-API_ENDPOINT = "https://api.primeintellect.ai"
 INITIAL_BACKOFF_SECONDS = 10
 MAX_BACKOFF_FACTOR = 10
 MAX_ATTEMPTS = 6
@@ -86,6 +85,7 @@ class PrimeintellectAPIClient:
         with open(self.credentials, 'r', encoding='utf-8') as f:
             self._credentials = json.load(f)
         self.api_key = self._credentials['api_key']
+        self.base_url = self._credentials['base_url']
         self.headers = {
             'Authorization': f'Bearer {self.api_key}',
             'Content-Type': 'application/json',
@@ -93,7 +93,7 @@ class PrimeintellectAPIClient:
 
     def list_instances(self, **search_kwargs) -> List[Dict[str, Any]]:
         response = _try_request_with_backoff('get',
-                                             f'{API_ENDPOINT}/api/v1/pods',
+                                             f'{self.base_url}/api/v1/pods',
                                              headers=self.headers,
                                              data=search_kwargs)
         return response['data']
@@ -138,7 +138,7 @@ class PrimeintellectAPIClient:
 
         response = _try_request_with_backoff(
             'post',
-            f'{API_ENDPOINT}/api/v1/pods',
+            f'{self.base_url}/api/v1/pods',
             headers=self.headers,
             data=payload,
         )
@@ -147,13 +147,13 @@ class PrimeintellectAPIClient:
     def remove(self, instance_id: str) -> Dict[str, Any]:
         return _try_request_with_backoff(
             'delete',
-            f'{API_ENDPOINT}/api/v1/pods/{instance_id}',
+            f'{self.base_url}/api/v1/pods/{instance_id}',
             headers=self.headers,
         )
 
     def list_ssh_keys(self) -> List[Dict[str, Any]]:
         response = _try_request_with_backoff('get',
-                                             f'{API_ENDPOINT}/api/v1/ssh_keys',
+                                             f'{self.base_url}/api/v1/ssh_keys',
                                              headers=self.headers)
         return response['data']
 
@@ -168,7 +168,7 @@ class PrimeintellectAPIClient:
         ssh_key_name = 'skypilot-' + get_key_suffix()
         _try_request_with_backoff(
             'post',
-            f'{API_ENDPOINT}/api/v1/ssh_keys',
+            f'{self.base_url}/api/v1/ssh_keys',
             headers=self.headers,
             data={
                 "name": ssh_key_name,

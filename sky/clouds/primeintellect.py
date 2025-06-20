@@ -19,8 +19,6 @@ if typing.TYPE_CHECKING:
 else:
     requests = adaptors_common.LazyImport('requests')
 
-DEFAULT_BASE_URL: str = "https://api.primeintellect.ai"
-
 _CREDENTIAL_FILES = [
     'config.json',
 ]

@@ -20,6 +20,7 @@ provider. See the comments in setup_lambda_authentication)
 """
 import copy
 import functools
+import json
 import os
 import re
 import socket
@@ -593,7 +594,14 @@ def setup_primeintellect_authentication(
     - Generates a new SSH key pair if one does not exist.
     - Adds the public SSH key to the user's Primeintellect account.
     """
-    _, public_key_path = get_or_generate_keys()
+    config_file = '~/.prime/config.json'
+    if not os.path.isfile(os.path.expanduser(config_file)):
+        raise Exception(f"{config_file} does not exist")
+
+    public_key_path = None
+    with open(os.path.expanduser(config_file),encoding='UTF-8') as f:
+        data = json.load(f)
+        public_key_path = data.get('ssh_key_path') + ".pub"
 
     client = primeintellect_utils.PrimeintellectAPIClient()
     public_key = None

@@ -99,7 +99,8 @@ class PrimeintellectAPIClient:
         return response['data']
 
     def get_instance_details(self, instance_id: str) -> Dict[str, Any]:
-        return _try_request_with_backoff('get',
+        return _try_request_with_backoff(
+            'get',
             f'{self.base_url}/api/v1/pods/{instance_id}',
             headers=self.headers)
 

@@ -599,7 +599,7 @@ def setup_primeintellect_authentication(
         raise Exception(f"{prime_config} does not exist")
 
     public_key_path = None
-    with open(os.path.expanduser(prime_config),encoding='UTF-8') as f:
+    with open(os.path.expanduser(prime_config), encoding='UTF-8') as f:
         data = json.load(f)
         public_key_path = data.get('ssh_key_path') + ".pub"
 

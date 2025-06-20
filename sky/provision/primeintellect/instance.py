@@ -211,8 +211,11 @@ def get_cluster_info(
     for instance_id in running_instances.keys():
         retry_count = 0
         max_retries = 6
-        while running_instances[instance_id].get('sshConnection') is None and retry_count < max_retries:
-            print(f"SSH connection to {running_instances[instance_id].get('name')} is not ready, waiting 10 seconds... (attempt {retry_count + 1}/{max_retries})")
+        while running_instances[instance_id].get(
+                'sshConnection') is None and retry_count < max_retries:
+            print(
+                f"SSH connection to {running_instances[instance_id].get('name')} is not ready, waiting 10 seconds... (attempt {retry_count + 1}/{max_retries})"
+            )
             time.sleep(10)
             retry_count += 1
             running_instances[instance_id] = _get_instance_info(instance_id)
@@ -220,12 +223,16 @@ def get_cluster_info(
         if running_instances[instance_id].get('sshConnection') is not None:
             print("SSH connection is ready!")
         else:
-            raise Exception(f"Failed to establish SSH connection after {max_retries} attempts")
+            raise Exception(
+                f"Failed to establish SSH connection after {max_retries} attempts"
+            )
 
-        assert running_instances[instance_id].get('sshConnection'), "sshConnection cannot be null anymore"
+        assert running_instances[instance_id].get(
+            'sshConnection'), "sshConnection cannot be null anymore"
 
         if ' -p ' in running_instances[instance_id]['sshConnection']:
-            ssh_port = running_instances[instance_id]['sshConnection'].split(' -p ')[1].strip()
+            ssh_port = running_instances[instance_id]['sshConnection'].split(
+                ' -p ')[1].strip()
         else:
             ssh_port = '22'
         instances[instance_id] = [
@@ -234,13 +241,15 @@ def get_cluster_info(
                 internal_ip="NOT_SUPPORTED",
                 external_ip=running_instances[instance_id]['ip'],
                 ssh_port=int(ssh_port),
-                tags={"provider": running_instances[instance_id]['providerType']},
+                tags={
+                    "provider": running_instances[instance_id]['providerType']
+                },
             )
         ]
         if running_instances[instance_id]['name'].endswith('-head'):
             head_instance_id = instance_id
-            head_instance_ssh_user = running_instances[instance_id]['sshConnection'].split(
-                '@', 1)[0].strip()
+            head_instance_ssh_user = running_instances[instance_id][
+                'sshConnection'].split('@', 1)[0].strip()
 
     return common.ClusterInfo(
         instances=instances,
